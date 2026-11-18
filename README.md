@@ -20,14 +20,16 @@ and an inner loop moves every accepted entry into the weights through training-f
 model's own responses. The base model fills every role with forward passes alone, and the edited checkpoint answers
 the original request without the harness. The repository implements the three components of the paper:
 
-- **Recursive Harness Internalization**: two nested loops. In the outer loop the base model proposes entries from
-  its own failures and an acceptance test keeps those whose gain generalizes. In the inner loop the base model with
-  an accepted entry in the request is the teacher, the same model on the original request is the student, and the
-  edit is refitted in rounds on the student's own responses.
-- **ReGap**: every transformer block is supervised with the teacher–student gap, the difference that the entry
-  makes at that block alone, and keeps it as a low-dimensional update of the block's MLP weights.
-- **ReKey**: the site of an edit is measured, the gaps are written by regression into a few key–value neurons of
-  every block, and the strength of the edit is measured on held-out responses.
+- **Recursive Harness Internalization**: the base model improves its harness, then writes what the harness adds
+  into its own weights through training-free edits, round after round on its own responses. In the outer loop the
+  base model adds candidate entries to its harness and an acceptance test keeps those whose gain generalizes; in
+  the inner loop the base model with an accepted entry in the request is the teacher and the same model on the
+  original request is the student.
+- **ReGap**: a mechanism that supervises every transformer block with the high-dimensional activation difference
+  that the harness makes at that block alone, the teacher–student gap, and updates the block's weights along this
+  signal in a low-dimensional subspace.
+- **ReKey**: an algorithm that writes this signal by regression into a few key–value neurons of every block, and
+  measures the site and strength of each edit on the model's own responses.
 
 ## Method
 
@@ -44,73 +46,91 @@ the model.
 
 ### Recursive Harness Internalization
 
-**Outer loop.** In every generation the base model reads its own answers on the fitting questions and proposes
-candidate entries. A candidate is scored on the validation questions against the current system at an equal token
-budget and kept when its gain generalizes:
+**Outer loop.** The base model proposes entries from its own failures, and an acceptance test keeps those whose
+gain generalizes:
 
 ```text
-accept c  if  p_gen(c) = max over b of p({d_b'(c)}, b' != b) <= alpha_c   and no benchmark is significantly worse
+A_n = { c :  p_gen(c) = max over b of p({d_b'(c)}, b' != b) <= alpha_c }
 ```
 
-d_b(c) is the paired accuracy gain of adding c on the validation questions of benchmark b, p is the one-sided
-sign-flip p-value of the macro mean, and alpha_c is the Holm threshold over the candidates of the generation. An
-entry for one benchmark is admitted when its gain there is significant and no other benchmark is significantly worse.
+d_b(c) is the paired accuracy gain of adding c on the validation questions of benchmark b at an equal token budget,
+p is the one-sided sign-flip p-value of the macro mean of its arguments, and alpha_c is the Holm threshold over the
+candidates of generation n. A general entry is thus kept only when its gain is significant with any one benchmark
+left out, and an entry for one benchmark only when its gain there is significant and no other benchmark is
+significantly worse. Each accepted entry is tested on questions disjoint from those it was written from.
 
 **Inner loop.** An accepted entry still acts through the request, so the inner loop moves it into the weights. The
-edit is fitted in rounds on the student's own responses:
+base model with the entry in the request is the teacher, the same model on the original request is the student, and
+the edit makes the student match its own teacher on the responses that it generates by itself. The edit changes
+those responses, so it is fitted in rounds on the student's own responses:
 
 ```text
 D(j) = D(j-1) + D(y),     y ~ student with edit e(j-1),     e(j) = ReKey(D(j))
 ```
 
-The first two rounds replay the responses of the teacher and of the unedited student, the later rounds those of the
-edited student. Every round computes its labels D(y) with the unedited base model, and the refit on the pooled
-responses replaces the previous edit. Every edit is fitted on the base weights and takes its own neurons or the
-patch kernel, so the edits add up in one checkpoint without refitting.
+D(y) are the labels of a response y, the gaps of ReGap, and ReKey(.) is the edit fitted on a set of labels. The
+first two rounds replay the responses of the teacher and of the unedited student, and the later rounds those of the
+edited student. Every round computes its labels with the unedited base model, so the labels of all rounds describe
+one target and can be pooled, and the refit replaces the previous edit. Every edit is fitted on the base weights and
+takes its own neurons or the patch kernel, so the edits add up in one checkpoint without refitting, and the
+checkpoint with every edit is deployed alone.
 
 ### ReGap
 
-The gap of block l is what the entry adds at that block alone: the block is run on the teacher's response states
-with and without the entry in the request,
+ReGap states what the teacher teaches in every block, a high-dimensional signal, and in what form the student
+keeps it, a low-dimensional update of the block's weights. The gap of block l is defined by running the block on
+the teacher's states with and without the entry in the request:
 
 ```text
 g_l = F_l(s^c_{l-1}; z^c_{l-1}) - F_l(s^c_{l-1}; z_{l-1})
 ```
 
-where F_l is the block, z and s are the states at the prompt and response positions, and c marks the teacher. The
-student keeps the gap as a small set of key–value neurons in the block's MLP:
+where F_l is the output of block l at the response positions, z and s are the prompt states and the response
+states, and c marks the states of the teacher. Both terms take the same response states, so g_l is what the entry
+adds at block l alone, and it comes from forward passes, with no gradient propagated from the output. The update
+that keeps it is a small set of key–value neurons in the MLP of the block:
 
 ```text
 E_l(x) = gamma * w_beta(k_l . x) * sum_{i=0..r} (u_{l,i} . x) v_{l,i},     w_beta(z) = z * sigmoid(beta * z)
 ```
 
-Each term is one SwiGLU neuron: its gate row is the key k_l, its up row the readout u, its down column the value v.
-An edit rewrites r + 1 neurons per block; every other weight stays bit-identical and the MLP keeps its architecture.
+Each term reads the input x of the MLP along a readout u and writes a value v, the key k_l carries the scope of the
+entry, gamma is the step, and r is far below the width of the model. Each term is one SwiGLU neuron, so an edit
+rewrites r + 1 neurons per block, every other weight stays bit-identical, and the MLP keeps its architecture.
 
 ### ReKey
 
-- **Site.** Before any fit, the student's own responses are replayed with the outputs of the linear-attention
-  layers set to those of the teacher, and the fraction of the divergence from the teacher that this removes is
-  measured. A high fraction sends an entry to the MLP neurons; a view entry with a low fraction goes to the patch
-  embedding, where the patch kernel K is resampled to K' = B^T K for the up-sampling B of the image. In the released
-  pipeline the fraction is measured and recorded for the entry that the rounds compile, and the view entry is
-  written into the patch embedding once it is accepted.
+ReKey computes the update from forward passes alone: it first measures the site of an edit, then writes the gap by
+regression into a few key–value neurons of every block, and finally measures its strength, all on the model's own
+responses.
+
+- **Site.** Before any fit, ReKey replays the student's own responses with the outputs of its linear-attention
+  layers set to those of the teacher and measures the fraction of the divergence from the teacher that this removes:
 
   ```text
   eta(c) = 1 - KL(teacher || student with the teacher's linear-attention outputs) / KL(teacher || student)
   ```
 
-- **Reading.** Teacher-forced forward passes of the base model over a response give the pairs (x_l(t), g_l(t)) of
-  MLP input and gap at sampled response positions.
-- **Writing.** For every block, a ridge regression reads the gap from the MLP input and is reduced to the r
-  directions that carry most of its predictions. One more neuron carries the mean gap, and the key is fitted by
-  ridge regression to tell the response positions where the entry applies from all others.
+  A high fraction sends the entry to the MLP neurons, which read the gap from the activations, and a low fraction
+  sends it to the patch embedding, since such an entry changes what the model sees. For such a view entry and an
+  up-sampling B of the image, the patch kernel K is resampled to K' = B^T K, so that the student embeds every patch
+  of the original image as the teacher embeds it after up-sampling.
+
+- **Reading.** ReKey reads the gap on a response by teacher-forced forward passes of the base model over its
+  tokens, which label every block with the pairs (x_l(t), g_l(t)) of MLP input and gap at the sampled response
+  positions.
+- **Writing.** For every block, the fit is a linear readout of the MLP input by ridge regression on the pairs,
+  with the mean gap b_l and the mean direction of the inputs removed (P_l). It is then reduced to the r directions
+  that carry most of its predictions over all responses. Each direction fills one key–value neuron, and one more
+  neuron carries the mean gap. Their key is fitted by ridge regression to tell the response positions where the gap
+  is present from all other positions.
 
   ```text
   W_l = argmin over W of E || g - b_l - W^T P_l x ||^2 + lambda * ||W||^2
   ```
 
-- **Strength.** The step is chosen by a line search on held-out student responses:
+- **Strength.** The strength of an edit, its step gamma, is measured by a line search on held-out student
+  responses, over a small set Gamma of steps:
 
   ```text
   gamma = argmin over Gamma of KL(teacher || student with the edit at step gamma)
@@ -141,8 +161,8 @@ figs/                               figures from the paper
 ## Requirements
 
 - Python 3.12, PyTorch 2.14, Transformers 5.20, vLLM 0.33 (pinned in `pyproject.toml`)
-- GPUs with 80 GB of memory (H100 in the paper): the servers of the outer loop, two cards for the reads of the
-  acceptance tests, and one card for the Procedure Edit
+- GPUs with 80 GB of memory: the servers of the outer loop, two cards for the reads of the acceptance tests, and
+  one card for the Procedure Edit
 
 All roles are the base model Qwen3.8-27B: it answers, proposes the entries and routes them. No external API is
 called and no gradient is computed.
@@ -157,9 +177,9 @@ pip install ".[gpu,sources]"
 
 ## Dataset
 
-The paper evaluates ten visual reasoning benchmarks: five in-distribution (ID) benchmarks supply the development
-questions and the ID tests, and five out-of-distribution (OOD) benchmarks are used for testing only. Every set has
-128 questions per benchmark.
+The paper evaluates ten visual reasoning benchmarks across perception, counting, charts, spatial reasoning and
+visual logic: five in-distribution (ID) benchmarks supply the development questions and the ID tests, and five
+held-out (OOD) benchmarks are used for testing only. Every set has 128 questions per benchmark.
 
 **ID**:
 
@@ -171,7 +191,7 @@ questions and the ID tests, and five out-of-distribution (OOD) benchmarks are us
 | VisuLogic | 54 | 74 | 128 | `VisuLogic/VisuLogic` | Apache-2.0 |
 | VLMs Are Biased | 54 | 74 | 128 | `anvo25/vlms-are-biased` | MIT |
 
-**OOD**:
+**Held-out (OOD)**:
 
 | Benchmark | Test | Source | License |
 | --- | --- | --- | --- |
@@ -235,10 +255,16 @@ Settings of the paper (`basersi/config/`):
 | Step | line search over {0.5, 0.75, 1, 1.25, 1.5, 1.8, 2, 2.6}; `--step 1.8` gives the step of the published model |
 | Positions per response | 5 template-tail positions and up to 512 (round 1) or 256 (rounds 2 and 3) reasoning positions |
 
-## Model
+## Model and Data
 
-The edited checkpoint of the paper is [BaseRSI-27B](https://huggingface.co/beita6969/BaseRSI-27B). It loads as the
-base model does and answers the original request.
+| Item | Location |
+| --- | --- |
+| Model weights (the edited checkpoint of the paper, Qwen3.8-27B with both edits) | [beita6969/BaseRSI-27B](https://huggingface.co/beita6969/BaseRSI-27B) |
+| Evaluation sets (640 ID and 640 held-out questions with their images) | [beita6969/BaseRSI-Dataset](https://huggingface.co/datasets/beita6969/BaseRSI-Dataset) |
+| Development questions (640, manifest of identifiers and hashes) | `basersi/config/development_manifest.jsonl` |
+| Base model | [Qwen/Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B) |
+
+The checkpoint loads as the base model does and answers the original request.
 
 ## License
 
