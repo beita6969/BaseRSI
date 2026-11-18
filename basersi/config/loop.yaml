@@ -1,0 +1,80 @@
+tip_reads_per_row: 8
+min_tip_reads_per_row: 4
+screen_samples: 2
+judge_samples: 4
+audit_samples: 2
+screen_p_macro: 0.25
+max_sent_to_judge: 6
+guess_tail_windows: [600, 1500]
+kept_tail_chars: 1500
+max_vote_reads: 5
+settings_arm_min_reads: 3
+signal_frontier_policies:
+  - {n0: 1, trigger: none, extra: tip}
+  - {n0: 2, trigger: disagree, extra: tip, final: plur}
+  - {n0: 3, trigger: none, extra: tip}
+default_read_policy: "n2:disagree->tip"
+proposer:
+  cards_per_generation: 6
+  temperature: 0.7
+  max_tokens: 12000
+  wrong_per_card: 8
+  right_per_card: 4
+  samples_shown: 2
+  reasoning_tail_chars: 600
+  content_tail_chars: 300
+  condition_max_chars: 200
+  procedure_max_chars: 600
+  card_seed_single: "v5g{generation}:v4"
+  card_seed_mixed: "v5g{generation}:mixed:v4"
+  category_min_words: 2
+  guard_min_text_chars: 16
+  tail_scan_chars: 8000
+wait_seconds: 21600
+poll_seconds: 5.0
+audit: true
+audit_groups: null
+audit_key_salt: "wo{cid}|"
+admission: true
+retest_specialisation: not_covered_by_verdict
+priorities:
+  route: 0
+  chat: 0
+  tip_cache: 0
+  candidate: 1
+  specialisation_cache: 2
+  new_tip_cache: 5
+  new_specialisation_cache: 6
+settings_menu:
+  min_image_tokens:
+    stock: null
+    values: [null, 1024, 2048, 4096]
+    what: every image is upscaled to at least this many visual tokens (null = the processor's own minimum)
+  max_image_tokens:
+    stock: 16384
+    values: [16384, 8192, 4096, 2048]
+    what: larger images are downscaled to at most this many visual tokens
+  temperature:
+    stock: 1.0
+    values: [0.6, 0.8, 1.0, 1.2]
+    what: sampling temperature of the answer
+settings_arm:
+  - name: T06
+    settings: {temperature: 0.6}
+  - name: F2048
+    settings: {min_image_tokens: 2048}
+  - name: F1024
+    settings: {min_image_tokens: 1024}
+  - name: STOCK
+    settings: {min_image_tokens: null}
+    view_only: true
+operators: []
+judge_export:
+  enabled: true
+  system: general_and_specialisation
+  tip_samples: 8
+  stock_samples: 4
+  floor_samples: 8
+  removal_samples: 2
+  removal_key_salt: "lwo{unit}|"
+  tail_chars: 2500

@@ -1,0 +1,36 @@
+alpha: 0.10
+alpha_negative_benchmark: 0.10
+min_scored_benchmarks: 3
+sign_flip:
+  count: 20000
+  seed: 20261111
+prescreen_p: 0.25
+default_read_policy: "n2:disagree->tip"
+guess_detector_search_windows: [600, 1200, 2500]
+guess_policy_windows_entry_audit: [600, 2500]
+guess_policy_windows_weight_edits: [600, 1500]
+guess_min_benchmarks: 5
+procedure_edit_source_benchmark: null
+procedure_edit_entry_index: null
+procedure_entry_group: null
+entry_groups: {}
+exports:
+  allow_missing_reads: false
+  summary: {file: export_summary.json, path: null}
+  tip_reads: {file: tip_development_reads.jsonl.gz, arm: tip, path: null}
+  tip_reads_fix: {file: tip_development_reads_fix.jsonl.gz, path: null}
+  tip_fired: {file: tip_fired.jsonl.gz, path: null}
+  entry_removals: {file: entry_removals.jsonl.gz, path: null}
+  entry_sources: {file: entry_sources.jsonl.gz, path: null}
+  floor_and_stock: {file: floor_and_stock.jsonl.gz, floor_arm: floor, stock_arm: stock, base_settings: null, base_text_entries: null, path: null}
+  floor_full: {file: floor_full.jsonl.gz, floor_arm: floor, path: null}
+  view_edit_signal: {file: view_edit_signal.jsonl.gz, arm_hint: view_edit, path: null}
+  view_edit_judge: {file: view_edit_judge.jsonl.gz, arm_hint: view_edit, path: null}
+  procedure_edit_signal: {file: procedure_edit_signal.jsonl.gz, arm_hint: procedure_edit, path: null}
+  procedure_edit_judge: {file: procedure_edit_judge.jsonl.gz, arm_hint: procedure_edit, path: null}
+sha256: {}
+candidate_samples:
+  view_edit: {signal: [0, 1, 2, 3], judge: [0, 1, 2, 3]}
+  procedure_edit: {signal: [0, 1], judge: [0, 1]}
+candidate_read_cards: two_cards
+candidate_read_port: 8300

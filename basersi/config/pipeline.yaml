@@ -1,0 +1,79 @@
+work_dir: runs/basersi
+acceptance_gates: true
+resume:
+  accept_outputs_of_other_code: false
+data_dir: data
+model: models/stock
+base_model:
+  id: Qwen/Qwen3.8-27B
+  revision: 1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0
+  config_sha256: 191e0af232104ed8b65258cf3fb2b842e288008baca7633c11b82a1ac7203aab
+  index_sha256: 77042094076611b69791a610065f28b7013b8c621795fa86ddccc8bac7d1b9df
+  weights_check: quick
+  weights:
+    model-00001-of-00018.safetensors: {size: 3966730552, first_mib_sha256: 083c3cfe6398f2cd9bb473bfc8526df5ec2ddf1640b85eb74a97512f9c88fdbc, sha256: ba0ce20aae489ad196733da5064bcdf159a1fe84f53336648196e1ebb7751b1c}
+    model-00002-of-00018.safetensors: {size: 3043080328, first_mib_sha256: 0f1429e8a9a01088c13442b80f53e31266284939db3ef9850399057ea5a6ed14, sha256: 06a148c01bfbe3faa14a5f184a7ff29a706f7ae1c8b2705d2058e26d17a001fb}
+    model-00003-of-00018.safetensors: {size: 2542796952, first_mib_sha256: d6ec1ae06279fd1596022799f077b6db507f05ab7aebdaeea212fbbd10db9448, sha256: 2e1bf62cbcd406eaa64b60d10353e1f0ef4039d0976e56f05cabe953454f9968}
+    model-00004-of-00018.safetensors: {size: 3988973152, first_mib_sha256: e252789b91311321593aedb2b3bcdaf7445f4e457523f46c22fdd2b8fb47803f, sha256: 511e34063187882659753c4d93f3859f93c019fd438d8813071921c81d9a3f1a}
+    model-00005-of-00018.safetensors: {size: 2099339864, first_mib_sha256: 3aec9b2d597bc6318972d1c83aa7fd7c86c3b76c4e243df22c78d5e7d10ad659, sha256: 635cb53446dc74f219740fc59e18b774f877b803b9722e289ca62575a6efa701}
+    model-00006-of-00018.safetensors: {size: 3979553696, first_mib_sha256: b7a41201a9a6cf694d580c7b18bd6af981f0acc650d556ddee6032168357f573, sha256: 0bc5214fac607f0e6cc92eec3789d4b8559410ef9fce66621ba8158e8410dae0}
+    model-00007-of-00018.safetensors: {size: 2108759344, first_mib_sha256: 884f75964fb1e1a2326b293ef270a2f504d24f31a622a276f54353ef2a97291d, sha256: 80b0c49033e9a0d5762562aa12f4acdb7f54da586f3d0110f28c48d91cf07892}
+    model-00008-of-00018.safetensors: {size: 3979553696, first_mib_sha256: fcc18a670d0d51a6860b176b438a891da8f0b81a9a3d8dc1050c752343009a45, sha256: 7192c5b66185d3592927daabee1cc19e6f6e0ce75988ee20e824b624765fda79}
+    model-00009-of-00018.safetensors: {size: 2108759344, first_mib_sha256: dface4af41b1d0fc12543f9de2ce36a187ddabe26afcf885d7f1cb867b2d9aa0, sha256: af3c48cc37af44f3db6ae0579baf019180d48d9c527caa0a1f03ff85813a56d8}
+    model-00010-of-00018.safetensors: {size: 3979553696, first_mib_sha256: ab9a95a00ce7d493db4e15e1fa959b0dbd16839f547f31bc303c0abe9871b4b9, sha256: 163490a76f3bea3a40855b7efc04ce6d27afaf1a34f0bbde495b9491f76457c9}
+    model-00011-of-00018.safetensors: {size: 2108759344, first_mib_sha256: 4fe8bffd0b3e27d88363b2f662e75ca45ab99ce838b8a3f8eaa171cfdab92738, sha256: 5f3ae1b948aeee39da77aec558e8236cd65fe4d7cb7686a76bb007acc563c6d8}
+    model-00012-of-00018.safetensors: {size: 3979553696, first_mib_sha256: 033ae95f2cd03edd3870b48d0555110025df7cadd9c5e5d88ab4a97e128fefec, sha256: a3de1c7114677a8f5ac5c4892c90e8238ea5c1e2038c80e757dfc87c3902ca55}
+    model-00013-of-00018.safetensors: {size: 2108759344, first_mib_sha256: 9e85c69754becf6fa03577d113cf52ba1937c67a40a6b35f1981ce19544920d1, sha256: 06ab79a41f74c9c5cb734816feb0c7fc364104b227165ee7391231e1155aa02a}
+    model-00014-of-00018.safetensors: {size: 3979553696, first_mib_sha256: 052b0b7eeb453c84367137f7cc3ec39b6e1db0d187cd7ca13e58c12181b85c72, sha256: 4138ed94603065ba884bbcadedb04d7718bb40117e85e6f5c6fc5b9c05b7a85b}
+    model-00015-of-00018.safetensors: {size: 2108759344, first_mib_sha256: 3854be91d863a9cc1972e1b89a5d4d78ae7aede9760c071e9a09276854c5d2d8, sha256: 69224e27b9de4e7dbf6fc936c6eaae08447bda3b80a6c31a871ab451173afd22}
+    model-00016-of-00018.safetensors: {size: 3979564040, first_mib_sha256: b6996ab81b8061a68a244fbe52fc6aaf9f2427d19c9770653146ab55fcd21791, sha256: 73cb9a1089fb6155cb648609478d6633be8a5c7d9ca5a05bc8925ce8a553cefe}
+    model-00017-of-00018.safetensors: {size: 2108759344, first_mib_sha256: 64f77e7d68b81c899ecaa9ccc7abfba8fb31a828f5098cc30ec959bd44e0cbe7, sha256: beb51f01056142ac4984bd800507b0dd0fd18de57f8e9ef6ea41d1a3598983a8}
+    model-00018-of-00018.safetensors: {size: 3392197344, first_mib_sha256: 651abc13f8e620be845427fa2e11d18e5e8ceb98f87554a674027d58291b9285, sha256: 1d3479509e21494658f9b64d317f5ea8e55c4025d28c702d6c4d0b356ce8ea06}
+stages:
+  - {stage: data}
+  - {stage: loop}
+  - {stage: judge, parts: [entries]}
+  - {stage: view_edit}
+  - {stage: judge, parts: [view_edit]}
+  - {stage: procedure_edit}
+  - {stage: export}
+  - {stage: judge, parts: [procedure_edit]}
+data:
+  development_rows: null
+  sources: null
+  images_dir: null
+view_edit:
+  checkpoint: null
+loop:
+  run_name: null
+  run_dir: null
+  queue_dir: null
+  generations: 1
+  start_tip: null
+  start_sources: null
+  start_verdicts: null
+  proposer_cards: null
+  offline: false
+  stop_before: null
+  judge_exports_dir: null
+judge:
+  export_dir: null
+  out_dir: null
+  config_override: null
+  read_candidates: true
+  candidate_read_port: null
+  candidate_read_cards: null
+  view_edit_checkpoint: null
+  procedure_edit_checkpoint: null
+  procedure_entry_group: null
+  procedure_edit_source_benchmark: null
+  procedure_edit_entry_index: null
+procedure_edit:
+  teacher_traces: null
+  entry: null
+  work_dir: null
+export:
+  base: null
+  spec: null
+  checkpoint: null
+  remap: null

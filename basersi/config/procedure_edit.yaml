@@ -1,0 +1,77 @@
+work_dir: null
+device: cuda:0
+memory_fraction: null
+teacher_traces: null
+entry: null
+teacher_samples: [0, 7]
+select_fold: 0
+fit_val_fold: 1
+n_folds: 5
+rounds: 3
+tail_positions: 5
+unit_gate_scale: 8.0
+site:
+  f32: false
+  max_reason: 3000
+lists:
+  read_window: {gen_lo: 150, gen_hi: 3000, prompt_hi: 6500}
+  list_seed: 1111
+  teacher_reads_per_row: 2
+  unrouted_select_per_benchmark: 4
+  unrouted_fit_per_benchmark: 14
+  unrouted_fit_total: 67
+  key_window: {gen_lo: 300, gen_hi: 3000, prompt_hi: 6500}
+  key_seed: 1111
+  key_first_per_benchmark: 8
+  key_rows_total: 48
+  key_exclusion_seed: 2222
+  key_exclusion_gen_hi: 1800
+  key_exclusion_draws: [4, 2]
+neurons:
+  f32: false
+  used_neurons: null
+  n_routed_reads: 5
+  n_unrouted_reads: 5
+  unrouted_stride: 4
+  candidates_per_block: 96
+position_keys:
+  f32: false
+  seed: 1111
+  ridge: 0.001
+  positions: {image: 128, text: 64, thinking: 128, answer: 16}
+  drop_prefix: false
+route_key:
+  ridge: 0.001
+  drop_prefix: true
+capture:
+  f32: true
+  seed: 1111
+  student_min_tokens: 150
+  student_reads_per_row: 2
+  teacher: {sampled_positions: 512, max_reason: 0, shards: 1}
+  base: {sampled_positions: 256, max_reason: 1000, shards: 1}
+  student: {sampled_positions: 256, max_reason: 1000, shards: 4}
+fit:
+  rank: 64
+  ridge_grid: [0.03, 0.3, 3.0]
+  seed: 67280421310721
+  n_threads: 32
+  decomposition: randomized
+  oversampling: 16
+  power_iterations: 6
+base_floor_samples: [0, 7]
+floor_request:
+  settings: {min_image_tokens: 4096}
+student:
+  cell: "0-63:64:1:ks"
+  samples: [0, 1]
+serving:
+  cards: one_card
+key:
+  slope: 8
+  threshold: 0.25
+strength:
+  steps: [0.5, 0.75, 1, 1.25, 1.5, 1.8, 2, 2.6]
+  step: null
+  f32: false
+  max_reason: 3000

@@ -1,0 +1,75 @@
+sampling:
+  temperature: 1.0
+  top_p: 0.95
+  top_k: 20
+  min_p: 0.0
+  presence_penalty: 0.0
+  repetition_penalty: 1.0
+reasoning_effort: medium
+read_max_tokens: 32768
+chat_max_tokens: 12000
+chat_temperature: 0.7
+crn_seed_base: 101
+crn_seed_generation: 0
+crn_seed_modulus: 2147482624
+request_tries: 3
+image:
+  merged_patch_pixels: 32
+  stock_min_pixels: 65536
+  stock_max_pixels: 16777216
+  max_aspect_ratio: 200
+ops:
+  image_limit: 40
+  max_model_len: 46000
+  generation_room: 4096
+  min_op_tokens: 256
+  min_box_side: 0.05
+  zoom_max_tokens: 48
+router:
+  max_tokens: 3
+  top_logprobs: 20
+  routed_if_p_at_least: 0.5
+  version: v1
+reads:
+  tries: 4
+  timeout_seconds: 7200
+  concurrency: 400
+  retry_wait_seconds: 5
+dispatcher:
+  threads: 8
+  server_cap: 60
+  unreachable_wait_seconds: 30
+  abort_retries: 3
+  abort_wait_seconds: 5
+  retry_wait_seconds: 5
+  retry_wait_growth: 4
+  connect_timeout_seconds: 30
+  read_timeout_seconds: 14400
+  scan_seconds: 2
+  engines_seconds: 5
+serve:
+  served_model_name: null
+  host: localhost
+  ports:
+    loop_server: 8200
+    reads: 8400
+  start_wait_seconds: 1200
+  stop_grace_seconds: 150
+  max_model_len: 46000
+  max_num_batched_tokens: 8192
+  kv_cache_dtype: fp8
+  max_images_per_prompt: 40
+  reasoning_parser: qwen3
+  seed: 0
+  one_card:
+    tensor_parallel_size: 1
+    gpu_memory_utilization: 0.85
+    max_num_seqs: 64
+  two_cards:
+    tensor_parallel_size: 2
+    gpu_memory_utilization: 0.93
+    max_num_seqs: 256
+grader:
+  loop_tail_chars: 20000
+  loop_min_chars: 5000
+  loop_max_compression: 0.08

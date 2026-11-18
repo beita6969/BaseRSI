@@ -1,0 +1,16 @@
+benchmarks: [babyvision, blink, charxiv, visulogic, vlmsbiased]
+rows_per_benchmark: 128
+roles:
+  show: 30
+  monitor: 24
+  judge: 74
+answer_match:
+  charxiv: {term_categories: [text-in-chart, text-in-general]}
+development:
+  file: development.jsonl
+  rows: 640
+  sha256: 1a105efec0bcf72b658a2f059e7452d82e41ad5b4d517a82a9d473c5267660ab
+  manifest: {file: development_manifest.jsonl, sha256: 875f41f69c2edc43f00f557ba029346720da89833226dffa10390b8cf9f0a648}
+id_stem_patterns:
+  vlmsbiased: "(_Q\\d+)?_px\\d+(_prompt\\d+)?$"
+overlap_max_dhash: 8

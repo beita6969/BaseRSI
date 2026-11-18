@@ -1,0 +1,140 @@
+layout: <sources_dir>/<repo with / replaced by __>/<file path>
+datasets:
+  babyvision:
+    repo: UnipatAI/BabyVision
+    revision: 849cbeea2b1d00ad334e9e1e2b49a1960c9ff3f3
+    url: https://huggingface.co/datasets/UnipatAI/BabyVision
+    license: mit
+    prompt_template_source: {repo: https://github.com/UniPat-AI/BabyVision, commit: 7f92fd4b1dc1c68b7b936a9bc09c68b4a944a55a, file: babyvision_eval/evaluate_model.py, what: the answer line appended to every question (BabyVision evaluation code)}
+    files:
+    - path: data/train-00000-of-00001.parquet
+      bytes: 50798037
+      sha256: 7f6ce0d1daff90165b635f60c900fa71f92db1f6d5b38c10b0116d1f026ff3b1
+  blink:
+    repo: BLINK-Benchmark/BLINK
+    revision: a3666eb249237ba3d5eca8db21176cc47967e040
+    url: https://huggingface.co/datasets/BLINK-Benchmark/BLINK
+    license: apache-2.0
+    prompt_template_source: {repo: https://huggingface.co/datasets/BLINK-Benchmark/BLINK, license: apache-2.0, file: "<subtask>/val-00000-of-00001.parquet, field prompt", what: the question text; its closing answer instruction is removed}
+    files:
+    - path: Art_Style/val-00000-of-00001.parquet
+      bytes: 146389711
+      sha256: 9400707b7d0e54809146f0f6e9eec058803bef7f50b58b7d21c75b95b90e37d4
+    - path: Counting/val-00000-of-00001.parquet
+      bytes: 4694898
+      sha256: 7404d7b8e3c4a97a9ab5015739ad3b76a505bbe073286c8c3412f60f4d2b13e5
+    - path: Forensic_Detection/val-00000-of-00001.parquet
+      bytes: 19573243
+      sha256: 48499d694cfffe81fa1eac3dcb1a84804d30cee8ffb501d7ff7020d8c20dd00c
+    - path: Functional_Correspondence/val-00000-of-00001.parquet
+      bytes: 25636347
+      sha256: fa3b85a94002be63939088627224d53bca84b20efcebb2cfa95fd246004514c1
+    - path: IQ_Test/val-00000-of-00001.parquet
+      bytes: 3785491
+      sha256: 5753ee46f95354f5d3207ff51df6cb0a70a3ffd63114e80718ab465a3997ca61
+    - path: Jigsaw/val-00000-of-00001.parquet
+      bytes: 3710771
+      sha256: cf6ae1c48389667e0c245e56c48479f86e9f0bc1f5d33f0559da5fc2f37b671f
+    - path: Multi-view_Reasoning/val-00000-of-00001.parquet
+      bytes: 9736586
+      sha256: f4e81718f844747bce372bcf046ffe207f82a1ea8b7ce308655c11f536114e19
+    - path: Object_Localization/val-00000-of-00001.parquet
+      bytes: 6196076
+      sha256: cce5f661cc5c6ddde12d37c2a70e4f7dc4f18e613a5e647d6f5ae35c05799532
+    - path: Relative_Depth/val-00000-of-00001.parquet
+      bytes: 4604789
+      sha256: 4cd1d5840a2f9e3ad86b310865bd44a29555344b0c6b67b36f9ab1c1029a4d1a
+    - path: Relative_Reflectance/val-00000-of-00001.parquet
+      bytes: 18539198
+      sha256: f6d6a7605b50f7283b09b4a2f98f7552bacd6a256ad61e6ecafa12e49b38e3ca
+    - path: Semantic_Correspondence/val-00000-of-00001.parquet
+      bytes: 46793618
+      sha256: 83b9882aca27f740e32d8973c2454e8b78203d3958d189cb5a5fe00a34b88e05
+    - path: Spatial_Relation/val-00000-of-00001.parquet
+      bytes: 7207871
+      sha256: 7ce3f778ac870af32151eb8a71512c203314404bd0d903f3bff6c80ff89322c2
+    - path: Visual_Correspondence/val-00000-of-00001.parquet
+      bytes: 59759962
+      sha256: c7c54374f3016df3781d306890c8921ed04ef5b8abd3fa404c6560b2f503d827
+    - path: Visual_Similarity/val-00000-of-00001.parquet
+      bytes: 44061241
+      sha256: 15857cd004055977c2486e39523a913762e9e6551603bc57b5bc097a70d19aa0
+  charxiv:
+    repo: princeton-nlp/CharXiv
+    revision: f441eb632fc62f6f777830a0f47619e6e86459b0
+    url: https://huggingface.co/datasets/princeton-nlp/CharXiv
+    license: cc-by-sa-4.0
+    prompt_template_source: {repo: https://github.com/princeton-nlp/CharXiv, commit: 7ebe88f78dee387691551f071abcb2b9e1a8025b, file: src/constants.py, license: apache-2.0, what: "REASONING_RESP_INST and the number instruction of the reasoning evaluation code (charxiv_instructions); the same texts are in existing_evaluations/gen-*-reasoning_val.json of the dataset at this revision"}
+    files:
+    - path: val.parquet
+      bytes: 66796186
+      sha256: ed0613ac7d5c045ac30a63d78529217bf267218948170a2b26ec37eaeea1605d
+  visulogic:
+    repo: VisuLogic/VisuLogic
+    revision: 3e483f8cca0bc766ecc5f70299f2b8a34b5035ca
+    url: https://huggingface.co/datasets/VisuLogic/VisuLogic
+    license: apache-2.0
+    prompt_template_source: {repo: https://github.com/VisuLogic-Benchmark/VisuLogic-Eval, commit: 00fba6ddafdc0d6805a4b9455c8df36502aeda2a, file: models/prompts.py, what: COT_PROMPT (visulogic_cot)}
+    files:
+    - path: data.jsonl
+      bytes: 294456
+      sha256: 969ff4407a433f7282d52635dc4f30bdeacd6ac0e4ea31cf604b85313c8562c0
+    - path: images.zip
+      bytes: 35713870
+      sha256: 86157164e4ee61296ed923dca61c115f08ba0633ca7c973029dbec3e0edf555b
+  vlmsbiased:
+    repo: anvo25/vlms-are-biased
+    revision: 3761f9fd7163577534a7816c8bc1004035f2e2a0
+    url: https://huggingface.co/datasets/anvo25/vlms-are-biased
+    license: mit
+    prompt_template_source: {repo: https://huggingface.co/datasets/anvo25/vlms-are-biased, license: mit, file: "data/*.parquet, field prompt", what: the question text; its closing curly-bracket answer instruction is removed}
+    files:
+    - path: data/main-00000-of-00002.parquet
+      bytes: 25016743
+      sha256: 127b746340ef6f883ad1d151534005222db9e18e90d5386fa6595f1175f6e0af
+    - path: data/main-00001-of-00002.parquet
+      bytes: 375413343
+      sha256: 27a8e4d50274f2b16454ae4650779f37e5835beb5761b2810459fc4bd5850f6d
+prompt_sources:
+  VisuLogic-Eval:
+    url: https://github.com/VisuLogic-Benchmark/VisuLogic-Eval
+    commit: 00fba6ddafdc0d6805a4b9455c8df36502aeda2a
+  vlms-are-biased:
+    url: https://github.com/anvo25/vlms-are-biased
+    commit: c8aaa69c71c66ed3883ce69c1e858f3862f1e5c9
+suffix:
+  mc: Answer with the letter of the correct option. Put only that letter in \boxed{}.
+  num: Answer with a number. Put the final number in \boxed{}.
+  yesno: Answer yes or no. Put your final answer (yes or no) in \boxed{}.
+  short: Put your final answer in \boxed{}, using the answer format the question asks for.
+letters: ABCDEFGHIJ
+blink_configs:
+- Art_Style
+- Counting
+- Forensic_Detection
+- Functional_Correspondence
+- IQ_Test
+- Jigsaw
+- Multi-view_Reasoning
+- Object_Localization
+- Relative_Depth
+- Relative_Reflectance
+- Semantic_Correspondence
+- Spatial_Relation
+- Visual_Correspondence
+- Visual_Similarity
+babyvision_answer_line: '
+
+  Think about the question and give your final answer in \boxed{Answer} format.'
+visulogic_cot: 'Solve the complex visual logical reasoning problem through step-by-step reasoning. Think about the reasoning process first and answer the question following this format: Answer: \boxed{$LETTER}.'
+charxiv_short_suffix: Put your final answer in \boxed{}, using the answer format the question asks for.
+charxiv_instructions:
+  1: "{}\n    * Your final answer must be grounded to some text that is explicitly written and relevant to the question in the chart.\n    * If you need to answer multiple terms, separate them with commas.\n    * Unless specified in the question (such as answering with a letter), you are required to answer the full names of subplots and/or labels by default.\n    "
+  2: "{}\n    * If there are options in the question, your final answer must conform to one of the options.\n    * If there are additional instructions in the question, follow them accordingly.\n    * If there are neither options nor additional instructions, you are allowed to respond with a short phrase only.\n    "
+  3: "{}\n    * Your final answer must be grounded to a number that is exlicitly written and relevant to the question in the chart, even if it's an approximate value.\n    * You are allowed to extract numbers within some text when needed.\n    "
+  4: "{}\n    {}\n    "
+charxiv_categories:
+  1: text-in-chart
+  2: text-in-general
+  3: number-in-chart
+  4: number-in-general

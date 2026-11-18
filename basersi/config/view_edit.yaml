@@ -1,0 +1,4 @@
+patch_size: 8
+min_image_tokens: 2048
+max_image_tokens: 4096
+checkpoint: null
