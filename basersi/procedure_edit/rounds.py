@@ -398,8 +398,33 @@ class Compiler:
             traces_from_reads(reads, {r: dict(self.teacher[r], settings=dict(settings)) for r in routed}, request, p)
         return p
 
-    def student_checkpoint(self, round_index, arrays_path, neurons_path):
-        cell = self.cfg["student"]["cell"]
+    def student_cell(self, round_index, arrays_path, own_traces):
+        student, strength, capture = self.cfg["student"], self.cfg["strength"], self.cfg["capture"]
+        cell = spec.parse_cell(student["cell"])
+        if not student["line_search"]:
+            return student["cell"], dict(step=cell["step"], chosen_by="preset")
+        steps = [float(s) for s in strength["steps"]]
+        blocks_units = f"{cell['lo']}-{cell['hi']}:{cell['rank']}"
+        replay_cells = [f"{select.candidate_name(s)}={blocks_units}:{s:g}:gate={cell['gate']}" + ("" if cell["bias"] else ",nobias") for s in steps]
+        name = f"round{round_index}"
+        items = self.item_list(f"strength_{name}", rows.reads_for_rows(self.traces_at(own_traces), self.lists["select"],
+                                                                       capture["student_reads_per_row"], capture["student_min_tokens"]),
+                               dict(traces=fp.file_sha256(own_traces), select=self.lists["select"], per_row=capture["student_reads_per_row"],
+                                    min_tokens=capture["student_min_tokens"]))
+        own_dir = self.replay(name, own_traces, items, replay_cells, arrays_path)
+        table = select.measure_steps(steps, evaluate.load_replay(own_dir))
+        best = select.line_search(table)
+        table_path = self.path("strength", f"{name}_table.json")
+        if not self.reuse(table_path, dict(own=fp.of(own_dir), steps=steps)):
+            fp.write_json_atomic(table_path, dict(steps=table, chosen=best and best["name"]), indent=1)
+        if best is None:
+            print(f"[basersi] round {round_index}: no step of procedure_edit.strength.steps has a finite held-out divergence ({table_path}); "
+                  f"the student keeps the step of procedure_edit.student.cell", file=sys.stderr, flush=True)
+            return student["cell"], dict(step=cell["step"], chosen_by="preset", table=table_path)
+        step = float(best["step"])
+        return f"{blocks_units}:{step:g}:{cell['gate']}" + ("" if cell["bias"] else ":nobias"), dict(step=step, chosen_by="line_search", table=table_path)
+
+    def student_checkpoint(self, round_index, arrays_path, neurons_path, cell):
         spec_path = self.path("cells", f"round{round_index}_student_spec.json")
         if not self.reuse(spec_path, dict(cell=cell, arrays=fp.file_sha256(arrays_path), neurons=fp.file_sha256(neurons_path),
                                         unit_gate_scale=self.cfg["unit_gate_scale"])):
@@ -448,9 +473,10 @@ class Compiler:
                                     dict(reads_inputs, traces=fp.file_sha256(base_traces)))
         aggregate.append((self.capture_round("round2_base", base_traces, base_items, capture["base"]), "f"))
         round_arrays.append(self.fit_round("round2", aggregate, route_arrays))
-        student_traces = None
+        student_traces, student_steps = None, {}
         for r in range(3, cfg["rounds"] + 1):
-            student, student_id = self.student_checkpoint(r - 1, round_arrays[-1], neurons_path)
+            cell, student_steps[f"round{r - 1}"] = self.student_cell(r - 1, round_arrays[-1], student_traces or base_traces)
+            student, student_id = self.student_checkpoint(r - 1, round_arrays[-1], neurons_path, cell)
             student_traces = self.floor_traces(f"round{r}_student", student, student_id, cfg["student"]["samples"])
             items = self.item_list(f"round{r}_student_fit", rows.reads_for_rows(self.traces_at(student_traces), self.lists["fit"], per_row, min_tokens),
                                    dict(reads_inputs, traces=fp.file_sha256(student_traces)))
@@ -465,7 +491,7 @@ class Compiler:
         choice = self.choose(gated_path, student_traces or base_traces, last_block)
         if choice.get("failed"):
             return dict(spec=None, line_search_failed=choice["failed"], site=site_record, arrays=gated_path, neurons=neurons_path, position_keys=keys_path,
-                        route_key_arrays=route_arrays, round_arrays=round_arrays, teacher_traces=self.teacher_traces_path,
+                        route_key_arrays=route_arrays, round_arrays=round_arrays, teacher_traces=self.teacher_traces_path, student_steps=student_steps,
                         strength=dict(step=None, chosen_by="line_search", at_grid_edge=None, table=choice["table"]))
         cell_text = select.spec_cell_text(choice["step"], cfg["fit"]["rank"], last_block)
         spec_path = self.path("final_spec.json")
@@ -477,7 +503,7 @@ class Compiler:
             raise fp.StaleOutput(f"{spec_path} holds the cell {written['cell']}, not {cell_text}: {fp.way_forward([spec_path, fp.sidecar(spec_path)], WORK_KEY)}")
         return dict(spec=spec_path, spec_sha256=fp.file_sha256(spec_path), site=site_record, arrays=gated_path, neurons=neurons_path, position_keys=keys_path,
                     route_key_arrays=route_arrays, round_arrays=round_arrays, teacher_traces=self.teacher_traces_path, cell=written["cell"],
-                    step=written["step"], strength=dict(step=written["step"], chosen_by=choice["chosen_by"], at_grid_edge=choice.get("at_grid_edge"),
+                    student_steps=student_steps, step=written["step"], strength=dict(step=written["step"], chosen_by=choice["chosen_by"], at_grid_edge=choice.get("at_grid_edge"),
                                                         table=choice.get("table")))
 
     def replay(self, name, traces_path, items, cells, gated_path):

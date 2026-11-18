@@ -22,7 +22,7 @@ def save_npz_atomic(path, arrays):
     return path
 
 
-def capture_record(lab, row_id, sample, index, sampled_positions, seed):
+def capture_record(lab, row_id, sample, index, sampled_positions, seed, check=False):
     gen, think_len = lab.gen_ids(row_id, sample)
     ctx_base = lab.prep(row_id, "base", gen)
     ctx_text = lab.prep(row_id, "proc", gen)
@@ -36,6 +36,7 @@ def capture_record(lab, row_id, sample, index, sampled_positions, seed):
     unit_input = np.zeros((n_layers, len(picked), hidden), np.float16)
     gap = np.zeros((n_layers, len(picked), hidden), np.float16)
     h_base, h_text = ctx_base.h0, ctx_text.h0
+    h_sum = h_base if check else None
     state = lab.state
     for l in range(n_layers):
         h_hybrid = torch.cat([h_base[:, : prompt_len - tail], h_text[:, prompt_len - tail + inserted:]], 1)
@@ -50,20 +51,33 @@ def capture_record(lab, row_id, sample, index, sampled_positions, seed):
         block_gap = h_text[0][stream + inserted].float() - h_hybrid_out[0][stream].float()
         unit_input[l] = captured[("mlpin", l)].float().cpu().numpy()
         gap[l] = block_gap[picked].cpu().numpy()
+        if check:
+            h_sum = lab.run(ctx_base, start=l, stop=l + 1, h=h_sum)
+            h_sum = torch.cat([h_sum[:, : prompt_len - tail], h_sum[:, prompt_len - tail:] + block_gap.to(h_sum.dtype)[None]], 1)
         del captured, block_gap, h_hybrid, h_hybrid_out
+    exactness = None
+    if check:
+        with_entry = h_text[0][stream + inserted].float()
+        exactness = dict(with_gaps=float((h_sum[0][stream].float() - with_entry).abs().max()),
+                         without_gaps=float((h_base[0][stream].float() - with_entry).abs().max()))
     meta = dict(row=row_id, sample=sample, bench=lab.traces[row_id]["bench"], te=think_len, P=prompt_len, T=total_len, S=inserted)
-    return meta, dict(U=unit_input, J=gap, samp=picked.cpu().numpy(), te=think_len)
+    return meta, dict(U=unit_input, J=gap, samp=picked.cpu().numpy(), te=think_len), exactness
 
 
 def capture_gaps(lab, items, out_dir, sampled_positions, seed, shard=0, n_shards=1):
     os.makedirs(os.path.join(out_dir, "samp"), exist_ok=True)
     work = shard_items(items, shard, n_shards)
+    checked = False
     for index, (row_id, sample) in enumerate(work):
         path = os.path.join(out_dir, record_name(row_id, sample))
         if os.path.exists(path):
             continue
         start = time.time()
-        meta, samples = capture_record(lab, row_id, sample, index, sampled_positions, seed)
+        meta, samples, exactness = capture_record(lab, row_id, sample, index, sampled_positions, seed, check=not checked)
+        if exactness is not None:
+            checked = True
+            print(f"exactness check on {row_id} s{sample}: the replay without the entry plus the gaps of all blocks against the replay with the entry, "
+                  f"largest absolute difference at the response positions {exactness['with_gaps']:.2e} (without the gaps {exactness['without_gaps']:.2e})", flush=True)
         save_npz_atomic(os.path.join(out_dir, "samp", os.path.basename(path)), samples)
         save_npz_atomic(path, meta)
         print(f"[{index + 1}/{len(work)}] {row_id} s{sample} think {meta['te']} {time.time() - start:.0f}s", flush=True)

@@ -19,7 +19,7 @@ EPILOG = """inputs the config must name:
                a block without id changes only the keys it gives (for example weights_check: full).
                It is checked before the first step that loads or serves a model
   data_dir     folder for the development rows; data.sources = folder of the official benchmark files
-  loop.queue_dir, loop.generations (the TOTAL number of finished generations the run folder should hold, default 1;
+  loop.queue_dir, loop.generations (the TOTAL number of finished generations the run folder should hold, 8 in the shipped config, as in the paper;
                a repeated run with the same value runs nothing new, a larger value runs only the missing ones),
                loop.start_tip (a tip json to start from; null = a fresh start from the
                stock model with no entries; read only when the loop run folder holds no state.json yet; the

@@ -64,6 +64,7 @@ floor_request:
   settings: {min_image_tokens: 4096}
 student:
   cell: "0-63:64:1:ks"
+  line_search: true
   samples: [0, 1]
 serving:
   cards: one_card

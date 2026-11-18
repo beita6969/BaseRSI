@@ -48,7 +48,7 @@ loop:
   run_name: null
   run_dir: null
   queue_dir: null
-  generations: 1
+  generations: 8
   start_tip: null
   start_sources: null
   start_verdicts: null

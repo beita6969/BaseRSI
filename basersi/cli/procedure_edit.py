@@ -8,7 +8,7 @@ HELP = "Procedure Edit: compile a routed procedure into gated MLP units over sev
 STRENGTH = ("the step of the final spec. By default (procedure_edit.strength.step: null) a line search replays every step of "
             "procedure_edit.strength.steps on the last round's own held-out reads of the selection fold (the last student, or the unedited model when "
             "rounds is 2) and takes the step with the lowest mean divergence from the teacher (the smaller step on a tie); a step given here is used as "
-            "it is, without the search, and 1.8 is the step of the published model")
+            "it is, without the search; the line search of the published model selects 1.8. The student of every earlier round is exported at the step that the same line search selects for its round on the held-out reads of the current student (procedure_edit.student.line_search; false keeps the step of procedure_edit.student.cell)")
 NOTES = ("Before any fit, the site of the entry is measured on the unedited model's own reads of the routed questions of the selection fold: the share of the divergence from "
          "the teacher that is removed when the outputs of the linear-attention layers are set to the teacher's (procedure_edit.site; records in "
          "site/own, the mean share in site/linear_fraction.json and in the printed result). "

@@ -247,12 +247,13 @@ Settings of the paper (`basersi/config/`):
 | Category | Setting |
 | --- | --- |
 | Base model | Qwen3.8-27B (64 blocks) with its original weights as executor, proposer and router |
+| Outer loop | 8 generations (`loop.generations`) |
 | Acceptance test | alpha = 0.10 with the Holm correction over the candidates of a generation; one-sided sign-flip over picture groups, 20,000 flips |
 | View Edit | patch size 16 to 8; 2,048 to 4,096 image tokens per image |
 | Procedure Edit | all 64 blocks; rank r = 64, 65 neurons per block; J = 3 rounds |
 | Ridge weight | {0.03, 0.3, 3} x mean diagonal of the input covariance, chosen on a held-out fold |
 | Key | slope beta = 8, threshold 0.25 |
-| Step | line search over {0.5, 0.75, 1, 1.25, 1.5, 1.8, 2, 2.6}; `--step 1.8` gives the step of the published model |
+| Step | line search over {0.5, 0.75, 1, 1.25, 1.5, 1.8, 2, 2.6} on held-out student responses in every round; it selects 1.8 for the published model (`--step` fixes the final step without the search) |
 | Positions per response | 5 template-tail positions and up to 512 (round 1) or 256 (rounds 2 and 3) reasoning positions |
 
 ## Model and Data
