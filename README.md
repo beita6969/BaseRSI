@@ -4,6 +4,7 @@
 
 ### Harness entries found by the model itself, written into its weights by training-free edits, no harness at deployment
 
+<a href="https://arxiv.org/abs/2611.24578"><img src="https://img.shields.io/badge/arXiv-2611.24578-b31b1b" alt="BaseRSI paper on arXiv"></a>
 <a href="https://huggingface.co/beita6969/BaseRSI-27B"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-FFD21E" alt="Hugging Face model BaseRSI-27B"></a>
 <a href="https://huggingface.co/datasets/beita6969/BaseRSI-Dataset"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Dataset-FFD21E" alt="Hugging Face dataset BaseRSI-Dataset"></a>
 
@@ -266,6 +267,21 @@ Settings of the paper (`basersi/config/`):
 | Base model | [Qwen/Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B) |
 
 The checkpoint loads as the base model does and answers the original request.
+
+## Citation
+
+If you use BaseRSI, please cite the paper:
+
+```bibtex
+@article{zhang2026basersi,
+  title = {{BaseRSI}: Recursive Self-Improvement of a Base Vision-Language Model via Training-Free Harness Internalization},
+  author = {Zhang, Mingda and Dong, Yuanhao and Huang, Qiang and Qian, Rui and Li, Yanjin and Liu, Zhenyu and Huang, Xiao and Yang, Zihao and Wang, Jian and He, Pinjia and Tang, Xiaoying},
+  journal = {arXiv preprint arXiv:2611.24578},
+  year = {2026},
+  doi = {10.48550/arXiv.2611.24578},
+  url = {https://arxiv.org/abs/2611.24578}
+}
+```
 
 ## License
 
